@@ -48,7 +48,8 @@ func TrainController(w http.ResponseWriter, r *http.Request) {
 
 	url := fmt.Sprintf("https://transit.yahoo.co.jp/timetable/%s/%s/%s", stationId, tableId, trainId)
 
-	doc, _ := goquery.NewDocument(url)
+	response, _ := http.Get(url)
+	doc, _ := goquery.NewDocumentFromReader(response.Body)
 
 	data := doc.Find("#__NEXT_DATA__").Text()
 	var jData Train
