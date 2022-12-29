@@ -16,7 +16,7 @@ type HourData struct {
 	MinTimeTable	[]struct {
 		Minute	string	`json:"minute"`
 		KindId	string	`json:"kindId"`
-		DestinationId	string	`json:destinationId"`
+		DestinationId	string	`json:"destinationId"`
 		TrainId	string	`json:"trainId"`
 		TrainName	string	`json:"trainName"`
 		FirstStation	string	`json:"firstStation"`
@@ -69,7 +69,8 @@ func TableController(w http.ResponseWriter, r *http.Request) {
 		url += fmt.Sprintf("?kind=%s", kind[0])
 	}
 
-	doc, _ := goquery.NewDocument(url)
+	response, _ := http.Get(url)
+	doc, _ := goquery.NewDocumentFromReader(response.Body)
 
 	dayOfWeekMap := make(map[string]string)
 	dayOfWeekEles := doc.Find(".navDayOfWeek > li")

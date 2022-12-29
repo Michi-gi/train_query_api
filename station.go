@@ -51,7 +51,8 @@ func StationController(w http.ResponseWriter, r *http.Request) {
 	stationId := chi.URLParam(r, "stationId")
 
 	url := fmt.Sprintf("https://transit.yahoo.co.jp/station/%s", stationId)
-	doc, _ := goquery.NewDocument(url)
+	response, _ := http.Get(url)
+	doc, _ := goquery.NewDocumentFromReader(response.Body)
 
 	data := doc.Find("#__NEXT_DATA__").Text()
 	var jData Station

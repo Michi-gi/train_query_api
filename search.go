@@ -38,7 +38,8 @@ func SearchController(w http.ResponseWriter, r *http.Request) {
 	}
 
 	url := fmt.Sprintf("https://transit.yahoo.co.jp/timetable/search?q=%s", url.QueryEscape(searchWord))
-	doc, _ := goquery.NewDocument(url)
+	response, _ := http.Get(url)
+	doc, _ := goquery.NewDocumentFromReader(response.Body)
 
 	data := doc.Find("#__NEXT_DATA__").Text()
 	var jData SearchResult
