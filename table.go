@@ -41,14 +41,14 @@ type Table struct {
 }
 
 type TrainInTable struct {
-	Time           string `json:"time"`
-	Kind           string `json:"kind"`
-	Dest           string `json:"destination"`
-	Id             string `json:"id"`
-	Name           string `json:"name"`
-	IsFirstStation bool   `json:"isFirstStation"`
-	IsExtra        bool   `json:"isExtra"`
-	VendorNumber   string `json:"vendorNumber"`
+	Time           HourMinute `json:"time"`
+	Kind           string     `json:"kind"`
+	Dest           string     `json:"destination"`
+	Id             string     `json:"id"`
+	Name           string     `json:"name"`
+	IsFirstStation bool       `json:"isFirstStation"`
+	IsExtra        bool       `json:"isExtra"`
+	VendorNumber   string     `json:"vendorNumber"`
 }
 
 type TableReturn struct {
@@ -115,7 +115,7 @@ func TableController(w http.ResponseWriter, r *http.Request) {
 			var t TrainInTable
 			hour, _ := strconv.Atoi(hourData.Hour)
 			minute, _ := strconv.Atoi(train.Minute)
-			t.Time = fmt.Sprintf("%02d:%02d", hour, minute)
+			t.Time = HourMinute{Hour: hour, Minute: minute}
 			t.Kind = kindMap[train.KindId]
 			t.Dest = destMap[train.DestinationId]
 			t.Id = train.TrainId
