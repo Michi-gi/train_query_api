@@ -16,3 +16,4 @@
 
 # for docker compose
 docker-compose.yml
+.vscode/
