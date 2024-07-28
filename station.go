@@ -1,50 +1,44 @@
 package main
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
-	"github.com/go-chi/chi"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/go-chi/chi"
 )
 
-
 type Line struct {
-	RailName	string	`json:"RailName"`
-	Direction	string	`json:"Direction"`
-	Source	string	`json:"Source"`
-	RailId	string	`json:"RailId"`
-	ServiceDayCode	string	`json:"ServiceDayCode"`
-	RailTArget	string	`json:"RailTarget"`
+	RailName     string `json:"railName"`
+	Direction    string `json:"direction"`
+	Source       string `json:"source"`
+	GroupId      string `json:"groupId"`
+	DriveDayKind string `json:"driveDayKind"`
 }
 
-type StationDetail struct {
-	StationId string `json:"StationId"`
-	StationInfo struct {
-		RailGroup []Line `json:"RailGroup"`
-	} `json:"StationInfo"`
+type RouteInfo struct {
+	RailName  string `json:"railName"`
+	RailGroup []Line `json:"railGroup"`
 }
 
 type Station struct {
-	Props	struct {
-		PageProps	struct {
-			FeatureWithRail	struct {
-				Feature	struct {
-					TransitSearchInfo	struct {
-						Detail	StationDetail	`json:"Detail"`
-					}	`json:"TransitSearchInfo"`
-					Name	string	`json:"Name"`
-				}	`json:"Feature"`
-			}	`json:"FeaturewithRail"`
-		}	`json:"PageProps"`
-	}	`json:"props"`
+	Props struct {
+		PageProps struct {
+			DirectionDetail struct {
+				StationName   string `json:"stationName"`
+				DirectionItem struct {
+					RouteInfos []RouteInfo `json:"routeInfos"`
+				} `json:"directionItem"`
+			} `json:"directionDetail"`
+		} `json:"PageProps"`
+	} `json:"props"`
 }
 
 type StationReturn struct {
-	Id	string	`json:"id"`
-	Name	string	`json:"name"`
-	Lines	[]Line	`json:"lines"`
+	Id    string `json:"id"`
+	Name  string `json:"name"`
+	Lines []Line `json:"lines"`
 }
 
 func StationController(w http.ResponseWriter, r *http.Request) {
@@ -58,12 +52,19 @@ func StationController(w http.ResponseWriter, r *http.Request) {
 	var jData Station
 	json.Unmarshal([]byte(data), &jData)
 
-	detail := jData.Props.PageProps.FeatureWithRail.Feature.TransitSearchInfo.Detail
-	stationIdRet := detail.StationId
-	stationName := jData.Props.PageProps.FeatureWithRail.Feature.Name
-	lines := detail.StationInfo.RailGroup
+	// detail := jData.Props.PageProps.DirectionDetail.Feature.TransitSearchInfo.Detail
+	// stationIdRet := detail.StationId
+	stationName := jData.Props.PageProps.DirectionDetail.StationName
+	routes := jData.Props.PageProps.DirectionDetail.DirectionItem.RouteInfos
+	var lines []Line
+	for _, route := range routes {
+		for _, line := range route.RailGroup {
+			line.RailName = route.RailName
+			lines = append(lines, line)
+		}
+	}
 
-	ret := StationReturn{Id: stationIdRet, Name: stationName, Lines: lines}
+	ret := StationReturn{Id: stationId, Name: stationName, Lines: lines}
 	body, _ := json.Marshal(ret)
 	w.Write(body)
 }
